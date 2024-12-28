@@ -1,0 +1,23 @@
+{
+    "name": "wtsergo/amp-csv-reader",
+    "description": "Async csv file reader using amphp",
+    "require": {
+        "php": "^8.1",
+        "amphp/amp": "3.x@dev",
+        "amphp/file": "3.x@dev",
+        "amphp/parser": "1.x@dev"
+    },
+    "minimum-stability": "dev",
+    "version": "1.0.0",
+    "license": [
+        "MIT"
+    ],
+    "autoload": {
+        "files": [
+            "src/functions.php"
+        ],
+        "psr-4": {
+            "Wtsergo\\AmpCsvReader\\": "src/"
+        }
+    }
+}

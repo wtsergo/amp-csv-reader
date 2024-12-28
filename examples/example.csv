@@ -1,0 +1,5 @@
+sku,description,price,stock_qty
+sku1,"first line
+second line
+third line",10,11
+sku2,"one line",20,21
