@@ -3,9 +3,9 @@
     "description": "Async csv file reader using amphp",
     "require": {
         "php": "^8.1",
-        "amphp/amp": "^3.0.2",
-        "amphp/file": "^3.2.0",
-        "amphp/parser": "^1.1.1"
+        "amphp/amp": "^3",
+        "amphp/file": "^3",
+        "amphp/parser": "^1"
     },
     "license": [
         "MIT"
