@@ -3,11 +3,12 @@
 namespace Wtsergo\AmpCsvReader;
 
 use Amp\ByteStream\ReadableStream;
+use Amp\Cancellation;
+use Amp\CancelledException;
 use Amp\DeferredFuture;
 use Amp\Parser\Parser;
 use Amp\Pipeline\ConcurrentIterator;
 use Amp\Pipeline\Queue;
-use Exception;
 use Revolt\EventLoop;
 use Traversable;
 
@@ -19,11 +20,13 @@ class CsvReader implements \IteratorAggregate
 
     public function __construct(
         protected ReadableStream $stream,
-        protected int $bufferSize = 0,
-        protected $separator = ',',
-        protected $enclosure = '"',
-        protected $escape = "\\"
-    ) {
+        protected int            $bufferSize = 0,
+        protected                $separator = ',',
+        protected                $enclosure = '"',
+        protected                $escape = "\\",
+        protected ?Cancellation  $stopCancellation = null,
+    )
+    {
         $this->onComplete = new DeferredFuture;
         $this->parser = new Parser($this->parse());
     }
@@ -55,14 +58,15 @@ class CsvReader implements \IteratorAggregate
     }
 
     private $buffer = '';
+
     protected function parse()
     {
         $escapeMode = false;
         while (true) {
             $data = yield "\n";
-            $i=0;
+            $i = 0;
             $length = strlen($data);
-            while ($i<$length) {
+            while ($i < $length) {
                 if ($data[$i] === $this->enclosure) {
                     $escapeMode = !$escapeMode;
                 } elseif ($data[$i] === $this->escape) {
@@ -90,9 +94,11 @@ class CsvReader implements \IteratorAggregate
 
     private function read()
     {
-        while (null !== ($chunk = $this->stream->read())) {
-            $this->parser->push($chunk);
-        }
+        try {
+            while (null !== ($chunk = $this->stream->read($this->stopCancellation))) {
+                $this->parser->push($chunk);
+            }
+        } catch (CancelledException) {}
         $this->buffer .= $this->parser->cancel();
         $this->consumeBuffer();
         $this->complete();
